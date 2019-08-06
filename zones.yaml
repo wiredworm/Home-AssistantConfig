@@ -1,0 +1,32 @@
+# Contains zone details for Home Assistant
+
+  - name: Work
+    latitude: 53.62769
+    longitude: -0.20369
+    radius: 250
+  - name: Asda
+    latitude: 53.567949
+    longitude: -0.077122
+    radius: 150
+    icon: mdi:store
+  - name: Havelock Academy
+    latitude: 53.561798
+    longitude: -0.050488
+    icon: mdi:school
+  - name: The Trawlerman
+    latitude: 53.537113
+    longitude: -0.007446
+    radius: 50
+    icon: mdi:silverware-fork-knife
+  - name: Hull Royal Infirmary
+    latitude: 53.744075
+    longitude: -0.358285
+    radius: 150
+    icon: mdi:hospital
+  - name: Grimsby Hospital
+    latitude: 53.54424
+    longitude: -0.0949
+    radius: 125
+    icon: mdi:hospital
+
+  

@@ -1,0 +1,51 @@
+light.c44f339f3761_192_168_0_131:
+  friendly_name: TV Light
+  icon: mdi:led-strip
+light.dimmable_light_1:
+  friendly_name: Orange Room Ikea Bulb 1
+  icon: mdi:wall-sconce
+light.hue_ambiance_candle_1:
+  friendly_name: Orange Room Hue Bulb 1
+  icon: mdi:wall-sconce
+light.hue_ambiance_candle_2:
+  friendly_name: Orange Room Hue Bulb 2
+  icon: mdi:wall-sconce
+light.entrance_hall:
+  friendly_name: Entrance Hall Lights
+  icon: mdi:ceiling-light
+light.orange_room:
+  friendly_name: Orange Room Lights
+  icon: mdi:ceiling-light
+light.sonoff_lamp1:
+  friendly_name: White Room Lamp 1
+  icon: mdi:lamp
+light.sonoff_lamp2:
+  friendly_name: White Room Lamp 2
+  icon: mdi:lamp
+light.sonoff_lamp3:
+  friendly_name: White Room Lamp 3
+  icon: mdi:floor-lamp
+light.white_room_lamps:
+  friendly_name: White Room Lamps
+  icon: mdi:lamp
+switch.sonoff_fan1:
+  friendly_name: White Room Fan
+  icon: mdi:fan
+switch.20820045b4e62d597fee:
+  friendly_name: Small Fan
+  icon: mdi:fan
+device_tracker.my_flux_capacitor_2:
+  friendly_name: Petes Mobile Phone
+  entity_picture: /local/pwes_icon_192x192.png
+device_tracker.pwes_petesmobile:
+  friendly_name: Petes Mobile Phone
+  entity_picture: /local/pwes_icon_192x192.png
+device_tracker.galaxy_s9:
+  friendly_name: Trishs Mobile Phone
+  entity_picture: /local/twes_icon_192x192.png
+person.peter_west:
+  friendly_name: Pete
+  entity_picture: /local/pwes_icon_192x192.png
+person.trish_west:
+  friendly_name: Trish
+  entity_picture: /local/twes_icon_192x192.png

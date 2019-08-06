@@ -1,0 +1,10 @@
+  default_view:
+    view: true
+    icon: mdi:home
+  whiteroom:
+    name: White Room
+    entities:
+      - switch.sonoff_fan1
+      - light.sonoff_lamp1
+      - light.sonoff_lamp2
+      - light.sonoff_lamp3

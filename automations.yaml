@@ -1,0 +1,196 @@
+# This file contains any automations used by Home Assistant
+
+  # Play an announcement on the White Room Echo Dot at 20:15 each night to remind us to close the gate
+  - alias: Test Voice Announcement
+    trigger:
+      platform: time
+      at: '20:15:00'
+    condition:
+      condition: state
+      entity_id: group.all_devices
+      state: 'home'
+    action:
+      service: notify.alexa_media
+      data_template:
+        target:
+          - media_player.peter_s_2nd_echo_dot
+        data:
+          type: announce
+        message: "It's a quarter past eight.  Don't forget to close the gates."
+
+  # Arm Blink and Motion Detection at 09:00 each night
+  - alias: Arm Blink at bedtime
+    trigger:
+      platform: time
+      at: '21:00:00'
+    action:
+      - service: alarm_control_panel.alarm_arm_away
+        entity_id: alarm_control_panel.blink_home
+      - service: camera.enable_motion_detection
+        entity_id: camera.blink_bedroom
+      - service: camera.enable_motion_detection
+        entity_id: camera.blink_landing
+
+  # Disarm Blink at 07:00 each morning, but only if someone is home
+  - alias: Disarm Blink in the morning
+    trigger:
+      platform: time
+      at: '07:00:00'
+    condition:
+      condition: state
+      entity_id: group.all_devices
+      state: 'home'
+    action:
+      service: alarm_control_panel.alarm_disarm
+
+  # When everyone leaves home arm Blink and make sure motion sensing is enabled on all cameras
+  - alias: Arm Blink when everyone leaves home
+    trigger:
+      platform: state
+      entity_id: group.all_devices
+      to: 'not_home'
+    action:
+      - service: alarm_control_panel.alarm_arm_away
+        entity_id: alarm_control_panel.blink_home
+      - service: camera.enable_motion_detection
+        entity_id: camera.blink_bedroom
+      - service: camera.enable_motion_detection
+        entity_id: camera.blink_landing
+
+  # Disarm Blink when anyone comes home
+  - alias: Disarm Blink when everyone arrives home
+    trigger:
+      platform: state
+      entity_id: group.all_devices
+      to: 'home'
+    action:
+      service: alarm_control_panel.alarm_disarm
+
+  # When motion is detected by the Blink camera on the landing take a new image and refresh the system
+  - alias: Motion Triggers Image Update Landing
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.blink_landing_motion_detected
+        to: "on"
+    action:
+      - service: blink.trigger_camera
+        data:
+          name: Landing
+      - service: blink.blink_update
+          
+  # When motion is detected by the Blink camera in the bedroom take a new image and refresh the system
+  - alias: Motion Triggers Image Update Bedroom
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.blink_bedroom_motion_detected
+        to: 'on'
+    action:
+      - service: blink.trigger_camera
+        data:
+          name: Bedroom
+      - delay: 00:00:15
+      - service: blink.blink_update
+
+  # Refresh all of the Blink cameras
+  - alias: Blink Cameras Refresh All
+    trigger:
+      - platform: state
+        entity_id: input_boolean.blink_refresh
+        to: 'on'
+    action:
+      - service: blink.trigger_camera
+        data:
+          name: Bedroom
+      - delay: 00:00:15
+      - service: blink.trigger_camera
+        data:
+          name: Landing
+      - service: blink.blink_update
+      - delay: 00:00:15
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.blink_refresh
+
+  # Turn on the entrance hall lights 45 minutes prior to sunset and ensure they are ivory coloured and set to full brightness
+  - alias: 'Turns entrance hall lights on at sunset'
+    trigger:
+      platform: sun
+      event: sunset
+      offset: "-00:45:00"
+    action:
+      - service: light.turn_on
+        data:
+          entity_id: light.entrance_hall
+          brightness: 255
+          color_name: ivory
+
+  # At 23:00 each night dim the entrance hall lights to 50% brightness
+  - alias: Dim the entrance hall light at bedtime
+    trigger:
+      platform: time
+      at: '23:00:00'
+    action:
+      - service: light.turn_on
+        data:
+          entity_id: light.entrance_hall
+          brightness: 50
+          color_name: ivory
+
+  # Turn off the Entrance Hall lights some time after midnight (a random delay between 0 and 30 minutes is used)
+  - alias: Turn off the entrance hall lights after midnight
+    trigger:
+      platform: time
+      at: '00:00:00'
+    action:
+      - delay: '00:{{ (range(1, 30)|random|int) }}:00'
+      - service: light.turn_off
+        data:
+          entity_id: light.entrance_hall
+
+  # Turn on the front room lamps 15 minutes before sunset if noone is home
+  - alias: Turn on the front room lamps when away
+    trigger:
+      platform: sun
+      event: sunset
+      offset: "-00:15:00"
+    condition:
+      condition: state
+      entity_id: group.all_devices
+      state: 'not_home'
+    action:
+      - service: light.turn_on
+        data:
+          entity_id: light.white_room_lamps
+
+  # Turn off the front room  lights some time after 11pm  (a random delay between 0 and 30 minutes is used)
+  - alias: Turn off the front room lamps when away
+    trigger:
+      platform: time
+      at: '23:00:00'
+    condition:
+      condition: state
+      entity_id: group.all_devices
+      state: 'not_home'
+    action:
+      - delay: '00:{{ (range(1, 30)|random|int) }}:00'
+      - service: light.turn_off
+        data:
+          entity_id: light.white_room_lamps
+
+  # Create a persistent notification when a new version of Hass.io is released
+  - alias: system_upgrade_alert
+    trigger:
+      platform: state
+      entity_id: sensor.version_available
+    condition:
+      - condition: template
+        value_template: >-
+          {{
+            states('sensor.version_available')
+            !=
+            states('sensor.version_current')
+          }}
+    action:
+      - service: persistent_notification.create
+        data:
+          title: "Upgrade time!"
+          message: "There is a Home Assistant upgrade for Hass.io pending!"

@@ -1,0 +1,199 @@
+  # Power Monitoring for the Raspberry Pi
+  - platform: rpi_power
+    text_state: true
+
+  # Loop Energy Monitoring for the household gas and electricity
+  - platform: loopenergy
+    electricity:
+      electricity_serial: !secret loopElectricSerial
+      electricity_secret: !secret loopElectricSecret
+    gas:
+      gas_serial: !secret loopGasSerial
+      gas_secret: !secret loopGasSecret
+
+  # Recently added media monitoring for Kodi
+  - platform: kodi_recently_added
+    username: !secret kodiUsername
+    host: !secret kodiServer
+    password: !secret kodiPassword
+    port: !secret kodiPort
+  
+  - platform: fitbit
+    clock_format: 24H
+    monitored_resources:
+      - "body/weight"
+      
+  - platform: command_line
+    name: "Latest Tasmota"
+    command: "curl -s https://github.com/arendst/Sonoff-Tasmota/releases/latest | cut -d'\"' -f2 | rev | cut -d'/' -f1 | rev"
+    scan_interval: 600
+
+  - platform: template
+    sensors:
+      last_alexa:
+        entity_id:
+          - media_player.bedroom_echo_dot
+          - media_player.kitchen_echo
+          - media_player.white_room_dot
+        value_template: >
+          {{ states.media_player | selectattr('attributes.last_called','eq',True) | map(attribute='entity_id') | first }}
+
+      petes_mobile_batterystate:
+        friendly_name: "Battery"
+        value_template: >-
+          {% set battery_level = state_attr('device_tracker.life360_peter_west','battery')|int('unknown') %}
+          {{ battery_level }}%
+        icon_template: >-
+          {% set battery_level = state_attr('device_tracker.life360_peter_west','battery')|int('unknown') %}
+          {% set battery_round = (battery_level|int / 10)|int * 10 %}
+          {% if is_state_attr('device_tracker.life360_peter_west', 'battery_charging', True) %}
+          {% set battery_chargestring = "charging-" %}
+          {% endif %}
+          {% if battery_round == 0 %}
+            battery_round = "outline"
+          {% endif %}
+          mdi:battery-{{ battery_chargestring }}{{ battery_round }} 
+      petes_mobile_wifistate:
+        friendly_name: "Wifi"
+        value_template: >-
+          {% if is_state_attr('device_tracker.life360_peter_west', 'wifi_on', True) %}
+            On
+          {% else %}
+            Off
+          {% endif %}
+        icon_template: >-
+          {% if is_state_attr('device_tracker.life360_peter_west', 'wifi_on', True) %}
+            mdi:wifi
+          {% else %}
+            mdi:wifi-off
+          {% endif %}
+
+      trishs_mobile_batterystate:
+        friendly_name: "Battery"
+        value_template: >-
+          {% set battery_level = state_attr('device_tracker.life360_trish','battery')|int('unknown') %}
+          {{ battery_level }}%
+        icon_template: >-
+          {% set battery_level = state_attr('device_tracker.life360_trish','battery')|int('unknown') %}
+          {% set battery_round = (battery_level|int / 10)|int * 10 %}
+          {% if is_state_attr('device_tracker.life360_trish', 'battery_charging', True) %}
+          {% set battery_chargestring = "charging-" %}
+          {% endif %}
+          {% if battery_round == 0 %}
+            battery_round = "outline"
+          {% endif %}
+          mdi:battery-{{ battery_chargestring }}{{ battery_round }} 
+      trishs_mobile_wifistate:
+        friendly_name: "Wifi"
+        value_template: >-
+          {% if is_state_attr('device_tracker.life360_trish', 'wifi_on', True) %}
+            On
+          {% else %}
+            Off
+          {% endif %}
+        icon_template: >-
+          {% if is_state_attr('device_tracker.life360_trish', 'wifi_on', True) %}
+            mdi:wifi
+          {% else %}
+            mdi:wifi-off
+          {% endif %}
+
+      petes_mobilebattery:
+        friendly_name: "Petes Mobile Battery"
+        unit_of_measurement: '%'
+        value_template: "{{ state_attr('device_tracker.life360_peter_west','battery') }}"
+      trishs_mobilebattery:
+        friendly_name: "Trishs Mobile Battery"
+        unit_of_measurement: '%'
+        value_template: "{{ state_attr('device_tracker.life360_trish','battery') }}"
+        
+  - platform: darksky
+    api_key: !secret darkskyAPIKey
+    latitude: !secret homeLatitude
+    longitude: !secret homeLongitude
+    forecast:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+    monitored_conditions:
+      - icon
+      - summary
+      - nearest_storm_distance
+      - nearest_storm_bearing
+      - humidity
+      - temperature
+      - temperature_high
+      - temperature_low
+      - apparent_temperature
+      - apparent_temperature_high
+      - apparent_temperature_low
+      - wind_speed
+      - wind_bearing
+      - precip_type
+      - precip_probability
+      - precip_accumulation
+      - precip_intensity
+      - precip_intensity_max
+      - uv_index
+      - daily_summary
+      - pressure
+      - visibility
+    scan_interval:
+      minutes: 5
+  - platform: template
+    sensors:
+      dark_sky_current_text:
+        value_template:  >-
+          {% if is_state("sensor.dark_sky_icon","clear-day") %} Clear 
+          {% elif is_state("sensor.dark_sky_icon","clear-night") %} Clear 
+          {% elif is_state("sensor.dark_sky_icon","rain") %} Rain
+          {% elif is_state("sensor.dark_sky_icon","snow") %} Snowy
+          {% elif is_state("sensor.dark_sky_icon","fog") %} Foggy
+          {% elif is_state("sensor.dark_sky_icon","sleet") %} Sleet
+          {% elif is_state("sensor.dark_sky_icon","wind") %} Windy
+          {% elif is_state("sensor.dark_sky_icon","cloudy") %} Cloudy
+          {% elif is_state("sensor.dark_sky_icon","partly-cloudy-day") %} Partly Cloudy
+          {% elif is_state("sensor.dark_sky_icon","partly-cloudy-night") %} Partly Cloudy
+          {% elif is_state("sensor.dark_sky_icon","hail") %} Hailing
+          {% elif is_state("sensor.dark_sky_icon","lightning") %} Lightning
+          {% elif is_state("sensor.dark_sky_icon","thunderstorm") %} Thunderstorm
+          {% endif %}
+      dark_sky_alt_wind:
+        value_template: >-
+          {% set winddir = ['North','North-Northeast','Northeast','East-Northeast','East','East-Southeast','Southeast','South-Southeast','South','South-Southwest','Southwest','West-Southwest','West','West-Northwest','Northwest','North-Northwest','North'] %}
+          {{ states('sensor.dark_sky_wind_speed') | round }} mi/h from the {{ winddir[((states('sensor.dark_sky_wind_bearing') | float / 360)*16) | round]}}
+  - platform: xbox_live
+    api_key: !secret xboxapikey
+    xuid:
+      - !secret wwxuid
+
+  # Creates a sensor that reports the CPU temperature of the Pi
+  - platform: command_line
+    name: CPU Temperature
+    command: "cat /sys/class/thermal/thermal_zone0/temp"
+    # If errors occur, remove degree symbol below
+    unit_of_measurement: "°C"
+    value_template: '{{ value | multiply(0.001) | round(1) }}'
+    
+    # Creates sensors that report the memory use, processor use and network throughput of the Pi
+  - platform: systemmonitor
+    resources:
+      - type: memory_use_percent
+      - type: processor_use
+      - type: throughput_network_in
+        arg: eth0
+      - type: throughput_network_out
+        arg: eth0
+
+  # Creates a sensor that reports the most current version of Hass.io
+  - platform: version
+    name: version_available
+    source: hassio
+    image: raspberrypi3
+
+  # Creates a sensor that reports the currently installed version of Hass.io
+  - platform: version
+    name: version_current

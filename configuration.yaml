@@ -1,0 +1,139 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+# http:
+#   base_url: example.duckdns.org:8123
+
+# this section configures components that are related to discovery
+discovery:
+
+mqtt:
+  broker: core-mosquitto
+  username: !secret mqttUsername
+  password: !secret mqttPassword
+  discovery: true
+
+# device tracking through the use of the Sky Hub
+device_tracker:
+  - platform: sky_hub
+    host: !secret skyHubIPAddress
+    new_device_defaults:
+      track_new_devices: false
+      hide_if_away: false
+
+homeassistant:
+
+  # Specify the allowed Auth Providers
+  auth_providers:
+    - type: homeassistant
+
+  # Name of the location where Home Assistant is running
+  name: The West Home
+
+  # Location required to calculat ethe time the sun rises and sets
+  latitude: !secret homeLatitude
+  longitude: !secret homeLongitude
+  elevation: !secret homeElevation
+
+  unit_system: metric
+  time_zone: Europe/London
+
+  # Whitelist directories so we can write content to them
+  whitelist_external_dirs:
+    - '/tmp/'
+    - '/share/'
+
+  # include other customizations by including the appropriate YAML files
+  customize: !include customize.yaml
+  customize_glob: !include customize_glob.yaml
+
+# Enables configuration UI
+config:
+
+frontend:
+  themes: !include themes.yaml
+  javascript_version: latest
+  
+http:
+  base_url: !secret homeassistantBaseURL
+  #ssl_certificate: /ssl/fullchain.pem
+  #ssl_key: /ssl/privkey.pem
+
+# configuration for the Home Assistant Community Store add-on
+hacs:
+  token: !secret gitHACStoken
+  appdaemon: true
+  python_script: true
+  theme: true
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+input_boolean:
+  blink_refresh:
+    name: Blink Camera Refresh
+    initial: off
+    icon: mdi:camera-retake
+
+# Additional side-bar menu entities go here
+panel_iframe:
+  tasmoadmin:
+    title: 'TasmoAdmin'
+    icon: 'mdi:lightbulb-on'
+    url: !secret tasmoAdminURL
+
+  states_page:
+    title: 'Entities'
+    icon: 'mdi:atom'
+    url: !secret homeassistantEntitiesURL
+    
+# notification platforms
+notify:
+  - name: Pushover
+    platform: pushover
+    api_key: !secret pushoverAPIKey
+    user_key: !secret pushoverUserKey
+
+# the next section defines a group of lights; this method is preferred over
+# a regular group as the icon colour is updated to reflect the state
+light:
+  - platform: group
+    name: White Room Lamps
+    entities:
+      - light.sonoff_lamp1
+      - light.sonoff_lamp2
+      - light.sonoff_lamp3
+
+  - platform: flux_led
+    automatic_add: true
+
+# configure Tuya (used for Smart Home such as the sockets)
+tuya:
+  username: !secret tuyaUsername
+  password: !secret tuyaPassword
+  country_code: 44
+  platform: smart_life
+
+# configure the alexa media component (also used for announcements and TTS)
+alexa_media:
+  accounts:
+    - email: !secret amazonUsername
+      password: !secret amazonPassword
+      url: !secret amazonDomain
+
+# configure the Blink component
+blink:
+  username: !secret blinkUsername
+  password: !secret blinkPassword
+  scan_interval: 180
+
+breaking_changes:
+
+# includes for sensors, groups, automations, scripts and zones
+sensor: !include sensors.yaml
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+zone: !include zones.yaml

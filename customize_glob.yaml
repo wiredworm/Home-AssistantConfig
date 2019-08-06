@@ -1,0 +1,4 @@
+"group.*":
+  templates:
+    icon_color: if (state == 'on') return 'red'; else return 'green';
+    

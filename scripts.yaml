@@ -1,0 +1,56 @@
+'1559862289032':
+  alias: Blink Snap Picture
+  sequence:
+  - data:
+      name: blink Landing
+    service: blink.trigger_camera
+  - delay: 00:00:05
+  - service: blink.blink_update
+  - data:
+      entity_id: camera.blink_landing
+      filename: /share/my_image.jpg
+    service: camera.snapshot
+
+alexa_set_volume:
+  sequence:
+    - service: media_player.volume_set
+      data_template: 
+        entity_id: '{{ states.sensor.last_alexa.state }}' 
+        volume_level: >
+          {% if is_state("sensor.last_alexa", "media_player.echo_dot_second_gen") %}
+            0.5
+          {% else %}
+            0.3
+          {% endif %} 
+          
+alexa_tts:
+  sequence:
+    - service: script.turn_on
+      entity_id: script.alexa_set_volume
+    - delay: '00:00:01'      
+    - service: media_player.alexa_tts
+      data_template:
+        entity_id: '{{ states.sensor.last_alexa.state }}' 
+        message: "This is a sample message!!"
+
+dismiss_all_persistent_notifications:
+  alias: Persistent notifications
+  sequence:
+    - condition: template
+      value_template: "{{ states.persistent_notification|count > 0 }}"
+    - wait_template: >
+        {{ is_state('script.dismiss_all_persistent_notifications_loop', 'off') }}
+    - service: script.dismiss_all_persistent_notifications_loop
+      data_template:
+        message: >
+          {{ (states.persistent_notification|list)[0].object_id }}
+
+dismiss_all_persistent_notifications_loop:
+  alias: Persistent notifications loop
+  sequence:
+    - service: persistent_notification.dismiss
+      data_template:
+        notification_id: "{{ message }}"
+    - wait_template: >
+        {{ is_state('script.dismiss_all_persistent_notifications', 'off') }}
+    - service: script.dismiss_all_persistent_notifications
