@@ -1,5 +1,19 @@
 # This file contains any automations used by Home Assistant
 
+  - alias: "Internet Speed Glow Connect Great"
+    trigger:
+      - platform: template
+        value_template: "{{ states('sensor.speedtest_download')|float >= 10 }}"
+    action:
+      - service: shell_command.green
+
+  - alias: "Internet Speed Glow Connect Poor"
+    trigger:
+      - platform: template
+        value_template: "{{ states('sensor.speedtest_download')|float < 10 }}"
+    action:
+      - service: shell_command.red
+      
   # Play an announcement on the White Room Echo Dot at 20:15 each night to remind us to close the gate
   - alias: Test Voice Announcement
     trigger:
@@ -28,6 +42,7 @@
         entity_id: alarm_control_panel.blink_home
       - service: camera.enable_motion_detection
         entity_id: camera.blink_bedroom
+      - delay: '00:00:10'
       - service: camera.enable_motion_detection
         entity_id: camera.blink_landing
 
@@ -41,8 +56,9 @@
       entity_id: group.all_devices
       state: 'home'
     action:
-      service: alarm_control_panel.alarm_disarm
-
+      - service: alarm_control_panel.alarm_disarm
+        entity_id: all
+        
   # When everyone leaves home arm Blink and make sure motion sensing is enabled on all cameras
   - alias: Arm Blink when everyone leaves home
     trigger:
@@ -54,6 +70,7 @@
         entity_id: alarm_control_panel.blink_home
       - service: camera.enable_motion_detection
         entity_id: camera.blink_bedroom
+      - delay: '00:00:05'
       - service: camera.enable_motion_detection
         entity_id: camera.blink_landing
 
@@ -64,7 +81,8 @@
       entity_id: group.all_devices
       to: 'home'
     action:
-      service: alarm_control_panel.alarm_disarm
+      - service: alarm_control_panel.alarm_disarm
+        entity_id: all
 
   # When motion is detected by the Blink camera on the landing take a new image and refresh the system
   - alias: Motion Triggers Image Update Landing

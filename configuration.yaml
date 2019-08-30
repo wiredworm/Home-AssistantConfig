@@ -8,25 +8,15 @@ default_config:
 # this section configures components that are related to discovery
 discovery:
 
-mqtt:
-  broker: core-mosquitto
-  username: !secret mqttUsername
-  password: !secret mqttPassword
-  discovery: true
-
-# device tracking through the use of the Sky Hub
-device_tracker:
-  - platform: sky_hub
-    host: !secret skyHubIPAddress
-    new_device_defaults:
-      track_new_devices: false
-      hide_if_away: false
-
 homeassistant:
 
   # Specify the allowed Auth Providers
   auth_providers:
     - type: homeassistant
+    - type: trusted_networks
+      trusted_networks:
+        - 192.168.0.0/24
+        - fd00::/8
 
   # Name of the location where Home Assistant is running
   name: The West Home
@@ -43,7 +33,8 @@ homeassistant:
   whitelist_external_dirs:
     - '/tmp/'
     - '/share/'
-
+    - '/config/'
+    
   # include other customizations by including the appropriate YAML files
   customize: !include customize.yaml
   customize_glob: !include customize_glob.yaml
@@ -96,19 +87,19 @@ notify:
     api_key: !secret pushoverAPIKey
     user_key: !secret pushoverUserKey
 
-# the next section defines a group of lights; this method is preferred over
-# a regular group as the icon colour is updated to reflect the state
-light:
-  - platform: group
-    name: White Room Lamps
-    entities:
-      - light.sonoff_lamp1
-      - light.sonoff_lamp2
-      - light.sonoff_lamp3
-
-  - platform: flux_led
-    automatic_add: true
-
+  - name: gmail
+    platform: smtp
+    server: smtp.gmail.com
+    port: 587
+    timeout: 15
+    sender: !secret gmailSenderAddress
+    encryption: starttls
+    username: !secret gmailUsername
+    password: !secret gmailPassword
+    recipient:
+      - !secret gmailRecipient1
+    sender_name: Home Assistant
+    
 # configure Tuya (used for Smart Home such as the sockets)
 tuya:
   username: !secret tuyaUsername
@@ -129,11 +120,36 @@ blink:
   password: !secret blinkPassword
   scan_interval: 180
 
+tplink:
+  discovery: true
+
+speedtestdotnet:
+  scan_interval:
+    minutes: 30
+  monitored_conditions:
+    - ping
+    - download
+    - upload
+ 
+# Removed to improve performance 
+#influxdb:
+#  host: a0d7b954-influxdb
+#  port: 8086
+#  database: !secret influxDatabase
+#  username: !secret influxUsername
+#  password: !secret influxPassword
+#  max_retries: 3
+#  default_measurement: state
+  
 breaking_changes:
 
 # includes for sensors, groups, automations, scripts and zones
+binary_sensor: !include binarysensors.yaml
 sensor: !include sensors.yaml
 group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
 zone: !include zones.yaml
+switch: !include switches.yaml
+light: !include lights.yaml
+fan: !include fans.yaml

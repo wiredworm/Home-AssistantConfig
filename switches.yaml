@@ -1,0 +1,29 @@
+  - platform: template
+    switches:
+      blinkbedroommotiontoggle:
+        value_template: "{{ is_state_attr('camera.blink_bedroom', 'motion_enabled', false) }}"
+        turn_on:
+          service: camera.enable_motion_detection
+          data:
+            entity_id: camera.blink_bedroom
+        turn_off:
+          service: camera.disable_motion_detection
+          data:
+            entity_id: camera.blink_bedroom
+
+  - platform: broadlink
+    host: 192.168.0.32
+    mac: '78:0F:77:FD:62:73'
+    type: 'rm2_pro_plus'
+
+  - platform: mqtt
+    name: "Big Fan"
+    state_topic: "stat/bigfan1/POWER"  
+    command_topic: "cmnd/bigfan1/power"
+    availability_topic: "tele/bigfan1/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    retain: false

@@ -1,9 +1,24 @@
-light.c44f339f3761_192_168_0_131:
+sensor.dishwasher_amps:
+  friendly_name: Dishwasher Current Amps
+  icon: mdi:dishwasher
+sensor.dishwasher_today_kwh:
+  friendly_name: Dishwasher Total KWh Today
+  icon: mdi:dishwasher
+sensor.dishwasher_total_kwh:
+  friendly_name: Dishwasher Total KWh Consumption
+  icon: mdi:dishwasher
+sensor.dishwasher_watts:
+  friendly_name: Dishwasher Current Watts
+  icon: mdi:dishwasher
+sensor.dishwasher_volts:
+  friendly_name: Dishwasher Current Volts
+  icon: mdi:dishwasher
+light.c44f339f3761_192_168_0_23:
   friendly_name: TV Light
   icon: mdi:led-strip
 light.dimmable_light_1:
-  friendly_name: Orange Room Ikea Bulb 1
-  icon: mdi:wall-sconce
+  friendly_name: White Room Lamp 1
+  icon: mdi:lamp
 light.hue_ambiance_candle_1:
   friendly_name: Orange Room Hue Bulb 1
   icon: mdi:wall-sconce
@@ -16,9 +31,6 @@ light.entrance_hall:
 light.orange_room:
   friendly_name: Orange Room Lights
   icon: mdi:ceiling-light
-light.sonoff_lamp1:
-  friendly_name: White Room Lamp 1
-  icon: mdi:lamp
 light.sonoff_lamp2:
   friendly_name: White Room Lamp 2
   icon: mdi:lamp
@@ -28,11 +40,12 @@ light.sonoff_lamp3:
 light.white_room_lamps:
   friendly_name: White Room Lamps
   icon: mdi:lamp
-switch.sonoff_fan1:
-  friendly_name: White Room Fan
-  icon: mdi:fan
-switch.20820045b4e62d597fee:
-  friendly_name: Small Fan
+  templates:
+    icon_color: >
+      if (state === 'on') return 'rgb(255,0,0)';
+      return 'rgb(0,255,0)';
+switch.big_fan:
+  friendly_name: Big Fan
   icon: mdi:fan
 device_tracker.my_flux_capacitor_2:
   friendly_name: Petes Mobile Phone

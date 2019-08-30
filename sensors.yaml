@@ -12,16 +12,16 @@
       gas_secret: !secret loopGasSecret
 
   # Recently added media monitoring for Kodi
-  - platform: kodi_recently_added
-    username: !secret kodiUsername
-    host: !secret kodiServer
-    password: !secret kodiPassword
-    port: !secret kodiPort
+#  - platform: kodi_recently_added
+#    username: !secret kodiUsername
+#    host: !secret kodiServer
+#    password: !secret kodiPassword
+#    port: !secret kodiPort
   
-  - platform: fitbit
-    clock_format: 24H
-    monitored_resources:
-      - "body/weight"
+#  - platform: fitbit
+#    clock_format: 24H
+#    monitored_resources:
+#      - "body/weight"
       
   - platform: command_line
     name: "Latest Tasmota"
@@ -106,6 +106,27 @@
         friendly_name: "Trishs Mobile Battery"
         unit_of_measurement: '%'
         value_template: "{{ state_attr('device_tracker.life360_trish','battery') }}"
+
+      dishwasher_amps:
+        friendly_name_template: "{{ states.switch.dishwasher.name}} Current"
+        value_template: '{{ states.switch.dishwasher.attributes["current_a"] | float }}'
+        unit_of_measurement: 'A'
+      dishwasher_watts:
+        friendly_name_template: "{{ states.switch.dishwasher.name}} Current Consumption"
+        value_template: '{{ states.switch.dishwasher.attributes["current_power_w"] | float }}'
+        unit_of_measurement: 'W'
+      dishwasher_total_kwh:
+        friendly_name_template: "{{ states.switch.dishwasher.name}} Total Consumption"
+        value_template: '{{ states.switch.dishwasher.attributes["total_energy_kwh"] | float }}'
+        unit_of_measurement: 'kWh'
+      dishwasher_volts:
+        friendly_name_template: "{{ states.switch.dishwasher.name}} Voltage"
+        value_template: '{{ states.switch.dishwasher.attributes["voltage"] | float }}'
+        unit_of_measurement: 'V'
+      dishwasher_today_kwh:
+        friendly_name_template: "{{ states.switch.dishwasher.name}} Today's Consumption"
+        value_template: '{{ states.switch.dishwasher.attributes["today_energy_kwh"] | float }}'
+        unit_of_measurement: 'kWh'
         
   - platform: darksky
     api_key: !secret darkskyAPIKey
@@ -187,6 +208,11 @@
         arg: eth0
       - type: throughput_network_out
         arg: eth0
+
+  # Home Assistant Database Size Monitor
+  - platform: filesize
+    file_paths:
+      - /config/home-assistant_v2.db
 
   # Creates a sensor that reports the most current version of Hass.io
   - platform: version

@@ -1,0 +1,42 @@
+  - platform: mqtt
+    name: "White Room Lamp 2"
+    state_topic: "stat/whiteroomlamp2/POWER"  
+    command_topic: "cmnd/whiteroomlamp2/power"
+    availability_topic: "tele/whiteroomlamp2/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    retain: false
+
+  - platform: mqtt
+    name: "White Room Lamp 3"
+    state_topic: "stat/whiteroomlamp3/POWER"  
+    command_topic: "cmnd/whiteroomlamp3/power"
+    availability_topic: "tele/whiteroomlamp3/LWT"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+    retain: false
+
+  - platform: group
+    name: White Room Lamps
+    entities:
+      - light.white_room_lamp_2
+      - light.white_room_lamp_3
+      - light.dimmable_light_1
+      
+  - platform: flux_led
+    automatic_add: true
+
+  - platform: mqtt
+    name: "Conservatory Light"
+    command_topic: "cmnd/conservatoryfan/power1"
+    state_topic: "stat/conservatoryfan/POWER1"
+    qos: 1
+    payload_on: "ON"
+    payload_off: "OFF"
+    retain: false
